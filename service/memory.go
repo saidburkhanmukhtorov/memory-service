@@ -22,7 +22,8 @@ func NewMemoryService(storage storage.StorageI) *MemoryService {
 }
 
 // GetMemoryByID handles the GetMemoryByID gRPC request.
-func (s *MemoryService) GetMemoryByID(ctx context.Context, req *memory.GetMemoryByIdRequest) (*memory.Memory, error) {
+
+func (s *MemoryService) GetMemoryById(ctx context.Context, req *memory.GetMemoryByIdRequest) (*memory.Memory, error) {
 	memory, err := s.storage.Memory().GetMemoryByID(ctx, req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get memory by ID: %w", err)

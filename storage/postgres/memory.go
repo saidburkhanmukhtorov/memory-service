@@ -146,17 +146,16 @@ func (r *MemoryRepo) GetAllMemories(ctx context.Context, req *memory.GetAllMemor
 	}
 
 	if req.Title != "" {
-		filter += fmt.Sprintf(" AND title LIKE $%d", count)
+		filter += fmt.Sprintf(" AND title ILIKE $%d", count)
 		args = append(args, "%"+req.Title+"%")
 		count++
 	}
 
 	if req.Description != "" {
-		filter += fmt.Sprintf(" AND description LIKE $%d", count)
+		filter += fmt.Sprintf(" AND description ILIKE $%d", count)
 		args = append(args, "%"+req.Description+"%")
 		count++
 	}
-
 	if len(req.Tags) > 0 {
 		filter += fmt.Sprintf(" AND tags && $%d", count) // && operator for array containment
 		args = append(args, req.Tags)
@@ -196,7 +195,7 @@ func (r *MemoryRepo) GetAllMemories(ctx context.Context, req *memory.GetAllMemor
 	}
 
 	if req.PlaceName != "" {
-		filter += fmt.Sprintf(" AND place_name LIKE $%d", count)
+		filter += fmt.Sprintf(" AND place_name ILIKE $%d", count)
 		args = append(args, "%"+req.PlaceName+"%")
 		count++
 	}
@@ -208,7 +207,6 @@ func (r *MemoryRepo) GetAllMemories(ctx context.Context, req *memory.GetAllMemor
 	}
 
 	query += filter
-
 	rows, err := r.db.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
@@ -287,7 +285,6 @@ func (r *MemoryRepo) UpdateMemory(ctx context.Context, memory *models.UpdateMemo
 	}
 	return nil
 }
-
 func (r *MemoryRepo) PatchMemory(ctx context.Context, memory *models.PatchMemoryModel) error {
 	var args []interface{}
 	count := 1
@@ -297,6 +294,7 @@ func (r *MemoryRepo) PatchMemory(ctx context.Context, memory *models.PatchMemory
 	`
 
 	filter := ""
+	// Add WHERE clause for ID filtering
 
 	if memory.Title != nil {
 		filter += fmt.Sprintf(" title = $%d, ", count)
@@ -317,7 +315,7 @@ func (r *MemoryRepo) PatchMemory(ctx context.Context, memory *models.PatchMemory
 	}
 
 	if memory.Tags != nil {
-		filter += fmt.Sprintf(" tags = $%d, ", count)
+		filter += fmt.Sprintf(" tags = $%d, ", count) // Use = for updating array
 		args = append(args, *memory.Tags)
 		count++
 	}
@@ -350,9 +348,9 @@ func (r *MemoryRepo) PatchMemory(ctx context.Context, memory *models.PatchMemory
 		return fmt.Errorf("at least one field to update is required")
 	}
 
-	filter = filter[:len(filter)-2] // Remove the trailing comma and space
-	query += filter + fmt.Sprintf(" WHERE id = $%d", count)
-	args = append(args, memory.ID)
+	filter = filter[:len(filter)-2]                         // Remove the trailing comma and space
+	query += filter + fmt.Sprintf(" WHERE id = $%d", count) // Append filter to WHERE clause
+	args = append(args, memory.ID)                          // Add memory ID to args
 
 	result, err := r.db.Exec(ctx, query, args...)
 	if err != nil {
@@ -365,7 +363,6 @@ func (r *MemoryRepo) PatchMemory(ctx context.Context, memory *models.PatchMemory
 
 	return nil
 }
-
 func (r *MemoryRepo) DeleteMemory(ctx context.Context, id string) error {
 	query := `
 		DELETE FROM memories

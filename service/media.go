@@ -22,7 +22,7 @@ func NewMediaService(storage storage.StorageI) *MediaService {
 }
 
 // GetMediaByID handles the GetMediaByID gRPC request.
-func (s *MediaService) GetMediaByID(ctx context.Context, req *memory.GetMediaByIdRequest) (*memory.Media, error) {
+func (s *MediaService) GetMediaById(ctx context.Context, req *memory.GetMediaByIdRequest) (*memory.Media, error) {
 	media, err := s.storage.Media().GetMediaByID(ctx, req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get media by ID: %w", err)

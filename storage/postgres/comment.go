@@ -116,7 +116,7 @@ func (r *CommentRepo) GetAllComments(ctx context.Context, req *memory.GetAllComm
 	}
 
 	if req.Content != "" {
-		filter += fmt.Sprintf(" AND content LIKE $%d", count)
+		filter += fmt.Sprintf(" AND content ILIKE $%d", count)
 		args = append(args, "%"+req.Content+"%")
 		count++
 	}

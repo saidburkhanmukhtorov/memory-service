@@ -109,17 +109,10 @@ func (r *MediaRepo) GetAllMedia(ctx context.Context, req *memory.GetAllMediaRequ
 		count++
 	}
 
-	if len(req.Types) > 0 {
-		filter += " AND type IN ("
-		for i, t := range req.Types {
-			if i > 0 {
-				filter += ", "
-			}
-			filter += fmt.Sprintf("$%d", count)
-			args = append(args, t)
-			count++
-		}
-		filter += ")"
+	if len(req.Type) > 0 {
+		filter += fmt.Sprintf(" AND type ILIKE $%d", count)
+		args = append(args, "%"+req.Type+"%")
+		count++
 	}
 
 	query += filter

@@ -12,7 +12,7 @@ import (
 	"github.com/time_capsule/memory-service/config"
 	"github.com/time_capsule/memory-service/kafka/consumer"
 	"github.com/time_capsule/memory-service/models"
-	"github.com/time_capsule/memory-service/storage/postgres"
+	"github.com/time_capsule/memory-service/storage/test"
 )
 
 func TestMemoryConsumer(t *testing.T) {
@@ -20,10 +20,10 @@ func TestMemoryConsumer(t *testing.T) {
 
 	// Create a test topic
 	topic := "test-memory-topic"
-	createTopic(t, cfg.KafkaBrokers, topic)
-	defer deleteTopic(t, cfg.KafkaBrokers, topic)
+	createTopic(t, []string{"localhost:9092"}, topic)
+	defer deleteTopic(t, []string{"localhost:9092"}, topic)
 
-	storage, err := postgres.NewPostgresStorage(cfg)
+	storage, err := test.NewPostgresStorageTest(cfg)
 	if err != nil {
 		t.Fatalf("failed to initialize storage: %v", err)
 	}
@@ -43,10 +43,10 @@ func TestMemoryConsumer(t *testing.T) {
 	}
 
 	// Produce a message to the Kafka topic
-	produceMessage(t, cfg.KafkaBrokers, topic, "memory.create", memoryModel)
+	produceMessage(t, []string{"localhost:9092"}, topic, "memory.create", memoryModel)
 
 	// Create a MemoryConsumer with the actual storage
-	consumer := consumer.NewMemoryConsumer(cfg.KafkaBrokers, topic, storage)
+	consumer := consumer.NewMemoryConsumer([]string{"localhost:9092"}, topic, storage)
 
 	// Consume the message
 	go func() {

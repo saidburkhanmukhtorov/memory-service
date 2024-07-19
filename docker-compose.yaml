@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   memory-service:
+    container_name: memory
     build: ./
     ports:
       - "9090:9090"
